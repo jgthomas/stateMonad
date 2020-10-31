@@ -13,8 +13,10 @@ instance Applicative (State s) where
   (<*>) = ap
 
 instance Monad (State s) where
+  -- (Monad m) => a -> m a
   return a = State $ \s -> (a, s)
 
+  -- (Monad m) => m a -> (a -> m b) -> m b
   State act >>= k = State $ \s ->
     let (a, s') = act s
      in runState (k a) s'
