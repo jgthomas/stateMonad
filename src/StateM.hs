@@ -1,6 +1,6 @@
 module StateM where
 
-import Control.Applicative
+import Control.Applicative (Applicative)
 import Control.Monad (ap, liftM)
 
 newtype State s a = State {runState :: s -> (a, s)}
