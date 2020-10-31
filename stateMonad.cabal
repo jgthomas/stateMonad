@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: c7aa643adb403d777b857bed32926fccce3f4b511c69ed1a77e2af56595efa33
+-- hash: ff5803c87db19f56e7b487b9f46bcad1b770f40a58303f7c0065e8856ec30e49
 
 name:           stateMonad
 version:        0.1.0.0
@@ -27,7 +27,6 @@ source-repository head
 
 library
   exposed-modules:
-      Lib
       Stack
       StateM
   other-modules:
