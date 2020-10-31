@@ -1,3 +1,20 @@
+-- longer version of >>=
+--
+-- State act >>= k = \s ->
+--   let (a, s') = act s
+--       (State act') = k a
+--       in
+--     act' s' -- (s -> (a, s)) applied to an initial state, s'
+--
+-- >>= returns a function \s -> (a, s)
+-- takes in act, (s -> (a, s))
+-- and k, (a -> (s -> (a, s)))
+-- and builds the two functions, 'act' and 'k'
+-- into the returned \s -> (a, s) using a
+-- closure-like mechanism, such that the final returned
+-- function can be given an initial s, and run through
+-- all the enclosed steps, with runState then returning the
+-- final (a, s) if passed an s
 module StateM where
 
 import Control.Applicative (Applicative)
@@ -6,6 +23,7 @@ import Control.Monad (ap, liftM)
 -- constructor of the state monad holds a function
 -- that takes an initial state, and returns
 -- a pair of a return value and a new state
+-- runState is the convenience accessor function
 newtype State s a = State {runState :: s -> (a, s)}
 
 instance Functor (State s) where
@@ -23,6 +41,7 @@ instance Monad (State s) where
   -- (Monad m) => m a -> (a -> m b) -> m b
   -- (s -> (a, s)) -> (a -> (s -> (b, s))) -> (s -> (b, s))
   --
+  -- two arguments to >>=, act and k
   -- act = m a = (s -> (a, s))
   -- k = (a -> m b) = (a -> (s -> (a, s)))
   State act >>= k = State $ \s ->
@@ -32,21 +51,23 @@ instance Monad (State s) where
     -- as the initial state to runState, which then
     -- returns the next (s -> (a, s))
 
--- places the current state as the return value
--- returns (s -> (s, s))
+-- returns a State constructor in which the
+-- function has the current state (s -> (s, s)) as the return value
 get :: State s s
 get = State $ \s -> (s, s)
 
+-- takes a state, s, then returns a State constructor in which the
+-- function has that state, s, as its state
 put :: s -> State s ()
 put s = State $ \_ -> ((), s)
 
--- get grabs the state (s -> (s, s))
--- the other argument to bind is a lambda (a -> (s -> (a, s)))
 modify :: (s -> s) -> State s ()
 modify f = get >>= \x -> put (f x)
 
+-- fst (a, s) is the return value, a
 evalState :: State s a -> s -> a
 evalState act = fst . runState act
 
+-- snd (a, s) is the state, s
 execState :: State s a -> s -> s
 execState act = snd . runState act
